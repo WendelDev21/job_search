@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search | Buscador de Vagas</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'favicon/favicon-96x96.png' %}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}" />
+    <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}" />
+    <meta name="apple-mobile-web-app-title" content="Job Search" />
+    <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Job Search - Buscador de Vagas</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="content-wrapper">
+            <!-- Formulário de Pesquisa -->
+            <section class="search-form">
+                <form method="POST">
+                    {% csrf_token %}
+                    <h2>Preencha os campos para buscar vagas</h2>
+                    <div class="form-group">
+                        <label for="cargo">Cargo</label>
+                        <input type="text" id="cargo" name="cargo" required placeholder="Ex: Desenvolvedor">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nivel">Nível</label>
+                        <input type="text" id="nivel" name="nivel" required placeholder="Ex: Júnior, Pleno, Sênior">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="localidade">Localidade</label>
+                        <input type="text" id="localidade" name="localidade" required placeholder="Ex: São Paulo">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modelo_vaga">Modelo da Vaga</label>
+                        <input type="text" id="modelo_vaga" name="modelo_vaga" required placeholder="Ex: Presencial, Remoto">
+                    </div>
+
+                    <button type="submit" class="submit-btn">Buscar</button>
+                </form>
+            </section>
+            
+            <!-- Seção de Doações -->
+            <section class="donations">
+                <h2>Faça uma Doação</h2>
+                <p>Apoie nosso projeto com uma doação! Aceitamos PayPal, Bitcoin, Ethereum e USDT.</p>
+                <div class="donation-options">
+                    <div class="donation-option-paypal">
+                        <h3>PayPal</h3>
+                        <button class="donation-btn paypal" onclick="window.location.href='https://www.paypal.com/donate/?business=MG6B68368F4WN&no_recurring=0&item_name=Apoie+o+projeto+Job+Search%21&currency_code=USD'">
+                            Doar com PayPal
+                        </button>
+                    </div>
+                    <div class="donation-option-btc">
+                        <h3>Bitcoin</h3>
+                        <button class="donation-btn bitcoin" onclick="showAddress('bitcoin')">Mostrar Endereço</button>
+                    </div>
+                    <div class="donation-option-eth">
+                        <h3>Ethereum</h3>
+                        <button class="donation-btn ethereum" onclick="showAddress('ethereum')">Mostrar Endereço</button>
+                    </div>
+                    <!-- Espaço para botões futuros -->
+                    <div class="donation-option-usdt">
+                        <h3>USDT</h3>
+                        <button class="donation-btn usdt" onclick="showAddress('usdt')">Mostrar Endereço</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Modal -->
+            <div id="address-modal" class="modal" onclick="closeModal(event)">
+                <div class="modal-content">
+                    <h2 id="address-title"></h2>
+                    <p id="address-content"></p>
+                </div>
+            </div>
+
+
+        {% if results %}
+        <section class="results">
+            <h2>Resultados Encontrados:</h2>
+            <ul class="results-list">
+                {% for item in results %}
+                <li class="result-item">
+                    <a href="{{ item.link }}" target="_blank" class="result-link">{{ item.title }}</a>
+                    <p class="result-snippet">{{ item.snippet }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2025 Criado por <strong>Wendel Lucas</strong>. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+       // Função para exibir o endereço da carteira ao clicar nos botões
+        function showAddress(type) {
+            var addressTitle = '';
+            var addressContent = '';
+
+            // Define o título e o conteúdo com base no tipo de criptomoeda
+            if (type === 'bitcoin') {
+                addressTitle = 'Endereço Bitcoin';
+                addressContent = 'bc1q0aadkkgmveayaysxk8zvr9wazlahjnn34nuds9';
+            } else if (type === 'ethereum') {
+                addressTitle = 'Endereço Ethereum';
+                addressContent = '0x936c70b707cfa2d33b5d4faC497072436CdB17b0';
+            } else if (type === 'usdt') {
+                addressTitle = 'Endereço USDT - Ethereum';
+                addressContent = '0x936c70b707cfa2d33b5d4faC497072436CdB17b0';
+            }
+            // Atualiza o conteúdo do modal
+            document.getElementById('address-title').innerText = addressTitle;
+            document.getElementById('address-content').innerText = addressContent;
+
+            // Exibe o modal
+            document.getElementById('address-modal').style.display = 'flex';
+        }
+
+        // Função para fechar o modal quando o usuário clicar fora da caixa de conteúdo
+        function closeModal(event) {
+            // Verifica se o clique foi fora da caixa de conteúdo (modal-content)
+            if (event.target === document.getElementById('address-modal')) {
+                document.getElementById('address-modal').style.display = 'none'; // Fecha o modal
+            }
+        }
+
+        // Garante que o modal esteja inicialmente oculto
+        document.getElementById('address-modal').style.display = 'none';
+
+
+    </script>
+</body>
+</html>
